@@ -90,6 +90,30 @@ This script will:
 4. Optionally load sample data
 5. Optionally create a dedicated database user
 
+### Installing PostgreSQL
+
+If PostgreSQL is not already installed, you can install it using the following commands:
+
+```bash
+# Update package list
+sudo apt-get update
+
+# Install PostgreSQL
+sudo apt-get install postgresql postgresql-contrib -y
+```
+
+### Quick Setup and Running the Project
+
+1. Make all scripts executable:
+```bash
+chmod +x kenya_airways_db.sh initialize_database.sh run_sample_queries.sh generate_schema_diagram.py
+```
+
+2. Run the main menu script:
+```bash
+./kenya_airways_db.sh
+```
+
 ### Manual Setup
 
 If you prefer to set up the database manually:
