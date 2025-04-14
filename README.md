@@ -494,4 +494,4 @@ This database schema is provided under the MIT License.
 
 ## Contact
 
-For questions or support, please contact database-admin@kenyaairways.com
+For questions or support, please contact @dennis-kachila
