@@ -36,12 +36,16 @@ The database consists of the following key entities and their relationships:
 - Flight Schedules
 - Flights
 
+![Core Entities](core_entities.png)
+
 ### Customer Entities
 - Passengers
 - Loyalty Program
 - Bookings
 - Tickets
 - Special Requests
+
+![Customer Entities](customer_related_entities.png)
 
 ### Employee Entities
 - Departments
@@ -50,6 +54,8 @@ The database consists of the following key entities and their relationships:
 - Crew
 - Crew Assignments
 
+![Employee Entities](employee_related_entities.png)
+
 ### Operational Entities
 - Maintenance
 - Cargo
@@ -57,11 +63,15 @@ The database consists of the following key entities and their relationships:
 - Catering
 - Incidents
 
+![Operational Entities](operational_related_entities.png)
+
 ### Financial Entities
 - Payments
 - Refunds
 - Expenses
 - Revenue
+
+![Financial Entities](financial_related_entities.png)
 
 ## Getting Started
 
