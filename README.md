@@ -490,8 +490,10 @@ This database schema is provided under the MIT License.
 
 ## Contributors
 
-- Kenya Airways Database Team
+- Dennis Kachila (Lead Developer)
+- [Your Name] (Contributor)
+- [Your Name] (Contributor)
 
 ## Contact
 
-For questions or support, please contact @dennis-kachila
+For questions or support, please contact denniskachila4332@gmail.com
