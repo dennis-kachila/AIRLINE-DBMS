@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Kenya Airways Database Schema</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #003366; }
+        h2 { color: #0066cc; margin-top: 30px; }
+        .mermaid { margin: 20px 0; }
+        .schema-container { margin-bottom: 50px; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .schema-core { background-color: #CCEEFF; }
+        .schema-customer { background-color: #FFDDCC; }
+        .schema-employee { background-color: #DDFFCC; }
+        .schema-operations { background-color: #FFCCDD; }
+        .schema-finance { background-color: #DDCCFF; }
+    </style>
+</head>
+<body>
+    <h1>Kenya Airways Database Schema</h1>
+    <p>This diagram shows the tables and relationships in the Kenya Airways database.</p>
+    <div class="schema-container">
+    <h2>Schema: core</h2>
+    <h3>Table: aircraft</h3>
+    <table>
+        <tr><th>Column</th><th>Data Type</th><th>Nullable</th><th>Default</th><th>Constraints</th></tr>
+        <tr><td>aircraft_id</td><td>integer</td><td>No</td><td>nextval('core.aircraft_aircraft_id_seq'::regclass)</td><td>Primary Key</td></tr>
+        <tr><td>registration_number</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>aircraft_type_id</td><td>integer</td><td>No</td><td></td><td>Foreign Key to core.aircraft_types(aircraft_type_id)</td></tr>
+        <tr><td>manufacture_date</td><td>date</td><td>No</td><td></td><td></td></tr>
+        <tr><td>last_maintenance_date</td><td>date</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>next_maintenance_date</td><td>date</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>status</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>created_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+        <tr><td>updated_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+    </table>
+    <h3>Table: aircraft_types</h3>
+    <table>
+        <tr><th>Column</th><th>Data Type</th><th>Nullable</th><th>Default</th><th>Constraints</th></tr>
+        <tr><td>aircraft_type_id</td><td>integer</td><td>No</td><td>nextval('core.aircraft_types_aircraft_type_id_seq'::regclass)</td><td>Primary Key</td></tr>
+        <tr><td>model</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>manufacturer</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>capacity_economy</td><td>integer</td><td>No</td><td></td><td></td></tr>
+        <tr><td>capacity_business</td><td>integer</td><td>No</td><td></td><td></td></tr>
+        <tr><td>capacity_first</td><td>integer</td><td>No</td><td></td><td></td></tr>
+        <tr><td>cargo_capacity_kg</td><td>integer</td><td>No</td><td></td><td></td></tr>
+        <tr><td>range_km</td><td>integer</td><td>No</td><td></td><td></td></tr>
+        <tr><td>created_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+        <tr><td>updated_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+    </table>
+    <h3>Table: airports</h3>
+    <table>
+        <tr><th>Column</th><th>Data Type</th><th>Nullable</th><th>Default</th><th>Constraints</th></tr>
+        <tr><td>airport_id</td><td>integer</td><td>No</td><td>nextval('core.airports_airport_id_seq'::regclass)</td><td>Primary Key</td></tr>
+        <tr><td>iata_code</td><td>character</td><td>No</td><td></td><td></td></tr>
+        <tr><td>name</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>city</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>country</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>latitude</td><td>numeric</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>longitude</td><td>numeric</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>timezone_offset</td><td>integer</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>created_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+        <tr><td>updated_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+    </table>
+    <h3>Table: flight_schedules</h3>
+    <table>
+        <tr><th>Column</th><th>Data Type</th><th>Nullable</th><th>Default</th><th>Constraints</th></tr>
+        <tr><td>schedule_id</td><td>integer</td><td>No</td><td>nextval('core.flight_schedules_schedule_id_seq'::regclass)</td><td>Primary Key</td></tr>
+        <tr><td>route_id</td><td>integer</td><td>No</td><td></td><td>Foreign Key to core.routes(route_id)</td></tr>
+        <tr><td>flight_number</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>departure_time</td><td>time without time zone</td><td>No</td><td></td><td></td></tr>
+        <tr><td>arrival_time</td><td>time without time zone</td><td>No</td><td></td><td></td></tr>
+        <tr><td>days_of_operation</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>effective_from</td><td>date</td><td>No</td><td></td><td></td></tr>
+        <tr><td>effective_to</td><td>date</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>created_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+        <tr><td>updated_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+    </table>
+    <h3>Table: flights</h3>
+    <table>
+        <tr><th>Column</th><th>Data Type</th><th>Nullable</th><th>Default</th><th>Constraints</th></tr>
+        <tr><td>flight_id</td><td>integer</td><td>No</td><td>nextval('core.flights_flight_id_seq'::regclass)</td><td>Primary Key</td></tr>
+        <tr><td>schedule_id</td><td>integer</td><td>No</td><td></td><td>Foreign Key to core.flight_schedules(schedule_id)</td></tr>
+        <tr><td>aircraft_id</td><td>integer</td><td>Yes</td><td></td><td>Foreign Key to core.aircraft(aircraft_id)</td></tr>
+        <tr><td>flight_date</td><td>date</td><td>No</td><td></td><td></td></tr>
+        <tr><td>scheduled_departure</td><td>timestamp without time zone</td><td>No</td><td></td><td></td></tr>
+        <tr><td>scheduled_arrival</td><td>timestamp without time zone</td><td>No</td><td></td><td></td></tr>
+        <tr><td>actual_departure</td><td>timestamp without time zone</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>actual_arrival</td><td>timestamp without time zone</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>status</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>gate_departure</td><td>character varying</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>gate_arrival</td><td>character varying</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>baggage_claim</td><td>character varying</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>created_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+        <tr><td>updated_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+    </table>
+    <h3>Table: routes</h3>
+    <table>
+        <tr><th>Column</th><th>Data Type</th><th>Nullable</th><th>Default</th><th>Constraints</th></tr>
+        <tr><td>route_id</td><td>integer</td><td>No</td><td>nextval('core.routes_route_id_seq'::regclass)</td><td>Primary Key</td></tr>
+        <tr><td>origin_airport_id</td><td>integer</td><td>No</td><td></td><td>Foreign Key to core.airports(airport_id)</td></tr>
+        <tr><td>destination_airport_id</td><td>integer</td><td>No</td><td></td><td>Foreign Key to core.airports(airport_id)</td></tr>
+        <tr><td>distance_km</td><td>integer</td><td>No</td><td></td><td></td></tr>
+        <tr><td>estimated_duration_minutes</td><td>integer</td><td>No</td><td></td><td></td></tr>
+        <tr><td>created_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+        <tr><td>updated_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+    </table>
+    <div class="mermaid">
+erDiagram
+    aircraft {
+        integer aircraft_id PK NOT NULL
+        character varying registration_number  NOT NULL
+        integer aircraft_type_id  NOT NULL
+        date manufacture_date  NOT NULL
+        date last_maintenance_date  
+        date next_maintenance_date  
+        character varying status  NOT NULL
+        timestamp without time zone created_at  
+        timestamp without time zone updated_at  
+    }
+    aircraft_types {
+        integer aircraft_type_id PK NOT NULL
+        character varying model  NOT NULL
+        character varying manufacturer  NOT NULL
+        integer capacity_economy  NOT NULL
+        integer capacity_business  NOT NULL
+        integer capacity_first  NOT NULL
+        integer cargo_capacity_kg  NOT NULL
+        integer range_km  NOT NULL
+        timestamp without time zone created_at  
+        timestamp without time zone updated_at  
+    }
+    airports {
+        integer airport_id PK NOT NULL
+        character iata_code  NOT NULL
+        character varying name  NOT NULL
+        character varying city  NOT NULL
+        character varying country  NOT NULL
+        numeric latitude  
+        numeric longitude  
+        integer timezone_offset  
+        timestamp without time zone created_at  
+        timestamp without time zone updated_at  
+    }
+    flight_schedules {
+        integer schedule_id PK NOT NULL
+        integer route_id  NOT NULL
+        character varying flight_number  NOT NULL
+        time without time zone departure_time  NOT NULL
+        time without time zone arrival_time  NOT NULL
+        character varying days_of_operation  NOT NULL
+        date effective_from  NOT NULL
+        date effective_to  
+        timestamp without time zone created_at  
+        timestamp without time zone updated_at  
+    }
+    flights {
+        integer flight_id PK NOT NULL
+        integer schedule_id  NOT NULL
+        integer aircraft_id  
+        date flight_date  NOT NULL
+        timestamp without time zone scheduled_departure  NOT NULL
+        timestamp without time zone scheduled_arrival  NOT NULL
+        timestamp without time zone actual_departure  
+        timestamp without time zone actual_arrival  
+        character varying status  NOT NULL
+        character varying gate_departure  
+        character varying gate_arrival  
+        character varying baggage_claim  
+        timestamp without time zone created_at  
+        timestamp without time zone updated_at  
+    }
+    routes {
+        integer route_id PK NOT NULL
+        integer origin_airport_id  NOT NULL
+        integer destination_airport_id  NOT NULL
+        integer distance_km  NOT NULL
+        integer estimated_duration_minutes  NOT NULL
+        timestamp without time zone created_at  
+        timestamp without time zone updated_at  
+    }
+    aircraft ||--o{ aircraft_types : "references"
+    flight_schedules ||--o{ routes : "references"
+    flights ||--o{ flight_schedules : "references"
+    flights ||--o{ aircraft : "references"
+    routes ||--o{ airports : "references"
+    routes ||--o{ airports : "references"
+    </div>
+    </div>
+    <div class="schema-container">
+    <h2>Schema: customer</h2>
+    <h3>Table: bookings</h3>
+    <table>
+        <tr><th>Column</th><th>Data Type</th><th>Nullable</th><th>Default</th><th>Constraints</th></tr>
+        <tr><td>booking_id</td><td>integer</td><td>No</td><td>nextval('customer.bookings_booking_id_seq'::regclass)</td><td>Primary Key</td></tr>
+        <tr><td>booking_reference</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>passenger_id</td><td>integer</td><td>No</td><td></td><td>Foreign Key to customer.passengers(passenger_id)</td></tr>
+        <tr><td>booking_date</td><td>timestamp without time zone</td><td>No</td><td></td><td></td></tr>
+        <tr><td>booking_channel</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>booking_status</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>total_amount</td><td>numeric</td><td>No</td><td></td><td></td></tr>
+        <tr><td>currency</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>payment_status</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>contact_email</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>contact_phone</td><td>character varying</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>created_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+        <tr><td>updated_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+    </table>
+    <h3>Table: loyalty_program</h3>
+    <table>
+        <tr><th>Column</th><th>Data Type</th><th>Nullable</th><th>Default</th><th>Constraints</th></tr>
+        <tr><td>loyalty_id</td><td>integer</td><td>No</td><td>nextval('customer.loyalty_program_loyalty_id_seq'::regclass)</td><td>Primary Key</td></tr>
+        <tr><td>passenger_id</td><td>integer</td><td>No</td><td></td><td>Foreign Key to customer.passengers(passenger_id)</td></tr>
+        <tr><td>membership_number</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>membership_level</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>points_balance</td><td>integer</td><td>No</td><td>0</td><td></td></tr>
+        <tr><td>tier_qualification_points</td><td>integer</td><td>No</td><td>0</td><td></td></tr>
+        <tr><td>join_date</td><td>date</td><td>No</td><td></td><td></td></tr>
+        <tr><td>expiry_date</td><td>date</td><td>No</td><td></td><td></td></tr>
+        <tr><td>created_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+        <tr><td>updated_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+    </table>
+    <h3>Table: passengers</h3>
+    <table>
+        <tr><th>Column</th><th>Data Type</th><th>Nullable</th><th>Default</th><th>Constraints</th></tr>
+        <tr><td>passenger_id</td><td>integer</td><td>No</td><td>nextval('customer.passengers_passenger_id_seq'::regclass)</td><td>Primary Key</td></tr>
+        <tr><td>title</td><td>character varying</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>first_name</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>last_name</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>date_of_birth</td><td>date</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>nationality</td><td>character varying</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>passport_number</td><td>character varying</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>passport_expiry</td><td>date</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>email</td><td>character varying</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>phone</td><td>character varying</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>address</td><td>text</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>created_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+        <tr><td>updated_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+    </table>
+    <h3>Table: special_requests</h3>
+    <table>
+        <tr><th>Column</th><th>Data Type</th><th>Nullable</th><th>Default</th><th>Constraints</th></tr>
+        <tr><td>request_id</td><td>integer</td><td>No</td><td>nextval('customer.special_requests_request_id_seq'::regclass)</td><td>Primary Key</td></tr>
+        <tr><td>ticket_id</td><td>integer</td><td>No</td><td></td><td>Foreign Key to customer.tickets(ticket_id)</td></tr>
+        <tr><td>request_type</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>request_details</td><td>text</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>status</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>created_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+        <tr><td>updated_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+    </table>
+    <h3>Table: tickets</h3>
+    <table>
+        <tr><th>Column</th><th>Data Type</th><th>Nullable</th><th>Default</th><th>Constraints</th></tr>
+        <tr><td>ticket_id</td><td>integer</td><td>No</td><td>nextval('customer.tickets_ticket_id_seq'::regclass)</td><td>Primary Key</td></tr>
+        <tr><td>booking_id</td><td>integer</td><td>No</td><td></td><td>Foreign Key to customer.bookings(booking_id)</td></tr>
+        <tr><td>flight_id</td><td>integer</td><td>No</td><td></td><td></td></tr>
+        <tr><td>passenger_id</td><td>integer</td><td>No</td><td></td><td>Foreign Key to customer.passengers(passenger_id)</td></tr>
+        <tr><td>ticket_number</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>ticket_class</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>seat_number</td><td>character varying</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>fare_amount</td><td>numeric</td><td>No</td><td></td><td></td></tr>
+        <tr><td>fare_basis</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>baggage_allowance_kg</td><td>integer</td><td>No</td><td></td><td></td></tr>
+        <tr><td>checked_in</td><td>boolean</td><td>Yes</td><td>false</td><td></td></tr>
+        <tr><td>check_in_time</td><td>timestamp without time zone</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>boarding_time</td><td>timestamp without time zone</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>created_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+        <tr><td>updated_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+    </table>
+    <div class="mermaid">
+erDiagram
+    bookings {
+        integer booking_id PK NOT NULL
+        character varying booking_reference  NOT NULL
+        integer passenger_id  NOT NULL
+        timestamp without time zone booking_date  NOT NULL
+        character varying booking_channel  NOT NULL
+        character varying booking_status  NOT NULL
+        numeric total_amount  NOT NULL
+        character varying currency  NOT NULL
+        character varying payment_status  NOT NULL
+        character varying contact_email  NOT NULL
+        character varying contact_phone  
+        timestamp without time zone created_at  
+        timestamp without time zone updated_at  
+    }
+    loyalty_program {
+        integer loyalty_id PK NOT NULL
+        integer passenger_id  NOT NULL
+        character varying membership_number  NOT NULL
+        character varying membership_level  NOT NULL
+        integer points_balance  NOT NULL
+        integer tier_qualification_points  NOT NULL
+        date join_date  NOT NULL
+        date expiry_date  NOT NULL
+        timestamp without time zone created_at  
+        timestamp without time zone updated_at  
+    }
+    passengers {
+        integer passenger_id PK NOT NULL
+        character varying title  
+        character varying first_name  NOT NULL
+        character varying last_name  NOT NULL
+        date date_of_birth  
+        character varying nationality  
+        character varying passport_number  
+        date passport_expiry  
+        character varying email  
+        character varying phone  
+        text address  
+        timestamp without time zone created_at  
+        timestamp without time zone updated_at  
+    }
+    special_requests {
+        integer request_id PK NOT NULL
+        integer ticket_id  NOT NULL
+        character varying request_type  NOT NULL
+        text request_details  
+        character varying status  NOT NULL
+        timestamp without time zone created_at  
+        timestamp without time zone updated_at  
+    }
+    tickets {
+        integer ticket_id PK NOT NULL
+        integer booking_id  NOT NULL
+        integer flight_id  NOT NULL
+        integer passenger_id  NOT NULL
+        character varying ticket_number  NOT NULL
+        character varying ticket_class  NOT NULL
+        character varying seat_number  
+        numeric fare_amount  NOT NULL
+        character varying fare_basis  NOT NULL
+        integer baggage_allowance_kg  NOT NULL
+        boolean checked_in  
+        timestamp without time zone check_in_time  
+        timestamp without time zone boarding_time  
+        timestamp without time zone created_at  
+        timestamp without time zone updated_at  
+    }
+    bookings ||--o{ passengers : "references"
+    loyalty_program ||--o{ passengers : "references"
+    special_requests ||--o{ tickets : "references"
+    tickets ||--o{ bookings : "references"
+    tickets ||--o{ passengers : "references"
+    </div>
+    </div>
+    <div class="schema-container">
+    <h2>Schema: employee</h2>
+    <h3>Table: crew</h3>
+    <table>
+        <tr><th>Column</th><th>Data Type</th><th>Nullable</th><th>Default</th><th>Constraints</th></tr>
+        <tr><td>crew_id</td><td>integer</td><td>No</td><td>nextval('employee.crew_crew_id_seq'::regclass)</td><td>Primary Key</td></tr>
+        <tr><td>employee_id</td><td>integer</td><td>No</td><td></td><td>Foreign Key to employee.employees(employee_id)</td></tr>
+        <tr><td>crew_type</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>qualifications</td><td>text</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>license_number</td><td>character varying</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>license_type</td><td>character varying</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>certification_date</td><td>date</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>medical_expiry</td><td>date</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>created_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+        <tr><td>updated_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+    </table>
+    <h3>Table: crew_assignments</h3>
+    <table>
+        <tr><th>Column</th><th>Data Type</th><th>Nullable</th><th>Default</th><th>Constraints</th></tr>
+        <tr><td>assignment_id</td><td>integer</td><td>No</td><td>nextval('employee.crew_assignments_assignment_id_seq'::regclass)</td><td>Primary Key</td></tr>
+        <tr><td>crew_id</td><td>integer</td><td>No</td><td></td><td>Foreign Key to employee.crew(crew_id)</td></tr>
+        <tr><td>flight_id</td><td>integer</td><td>No</td><td></td><td></td></tr>
+        <tr><td>role</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>report_time</td><td>timestamp without time zone</td><td>No</td><td></td><td></td></tr>
+        <tr><td>created_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+        <tr><td>updated_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+    </table>
+    <h3>Table: departments</h3>
+    <table>
+        <tr><th>Column</th><th>Data Type</th><th>Nullable</th><th>Default</th><th>Constraints</th></tr>
+        <tr><td>department_id</td><td>integer</td><td>No</td><td>nextval('employee.departments_department_id_seq'::regclass)</td><td>Primary Key</td></tr>
+        <tr><td>department_name</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>department_code</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>parent_department_id</td><td>integer</td><td>Yes</td><td></td><td>Foreign Key to employee.departments(department_id)</td></tr>
+        <tr><td>created_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+        <tr><td>updated_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+    </table>
+    <h3>Table: employees</h3>
+    <table>
+        <tr><th>Column</th><th>Data Type</th><th>Nullable</th><th>Default</th><th>Constraints</th></tr>
+        <tr><td>employee_id</td><td>integer</td><td>No</td><td>nextval('employee.employees_employee_id_seq'::regclass)</td><td>Primary Key</td></tr>
+        <tr><td>employee_number</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>first_name</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>last_name</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>date_of_birth</td><td>date</td><td>No</td><td></td><td></td></tr>
+        <tr><td>gender</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>nationality</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>passport_number</td><td>character varying</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>passport_expiry</td><td>date</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>email</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>phone</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>address</td><td>text</td><td>No</td><td></td><td></td></tr>
+        <tr><td>hire_date</td><td>date</td><td>No</td><td></td><td></td></tr>
+        <tr><td>position_id</td><td>integer</td><td>No</td><td></td><td>Foreign Key to employee.positions(position_id)</td></tr>
+        <tr><td>salary</td><td>numeric</td><td>No</td><td></td><td></td></tr>
+        <tr><td>status</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>created_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+        <tr><td>updated_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+    </table>
+    <h3>Table: positions</h3>
+    <table>
+        <tr><th>Column</th><th>Data Type</th><th>Nullable</th><th>Default</th><th>Constraints</th></tr>
+        <tr><td>position_id</td><td>integer</td><td>No</td><td>nextval('employee.positions_position_id_seq'::regclass)</td><td>Primary Key</td></tr>
+        <tr><td>position_name</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>department_id</td><td>integer</td><td>No</td><td></td><td>Foreign Key to employee.departments(department_id)</td></tr>
+        <tr><td>created_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+        <tr><td>updated_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+    </table>
+    <div class="mermaid">
+erDiagram
+    crew {
+        integer crew_id PK NOT NULL
+        integer employee_id  NOT NULL
+        character varying crew_type  NOT NULL
+        text qualifications  
+        character varying license_number  
+        character varying license_type  
+        date certification_date  
+        date medical_expiry  
+        timestamp without time zone created_at  
+        timestamp without time zone updated_at  
+    }
+    crew_assignments {
+        integer assignment_id PK NOT NULL
+        integer crew_id  NOT NULL
+        integer flight_id  NOT NULL
+        character varying role  NOT NULL
+        timestamp without time zone report_time  NOT NULL
+        timestamp without time zone created_at  
+        timestamp without time zone updated_at  
+    }
+    departments {
+        integer department_id PK NOT NULL
+        character varying department_name  NOT NULL
+        character varying department_code  NOT NULL
+        integer parent_department_id  
+        timestamp without time zone created_at  
+        timestamp without time zone updated_at  
+    }
+    employees {
+        integer employee_id PK NOT NULL
+        character varying employee_number  NOT NULL
+        character varying first_name  NOT NULL
+        character varying last_name  NOT NULL
+        date date_of_birth  NOT NULL
+        character varying gender  NOT NULL
+        character varying nationality  NOT NULL
+        character varying passport_number  
+        date passport_expiry  
+        character varying email  NOT NULL
+        character varying phone  NOT NULL
+        text address  NOT NULL
+        date hire_date  NOT NULL
+        integer position_id  NOT NULL
+        numeric salary  NOT NULL
+        character varying status  NOT NULL
+        timestamp without time zone created_at  
+        timestamp without time zone updated_at  
+    }
+    positions {
+        integer position_id PK NOT NULL
+        character varying position_name  NOT NULL
+        integer department_id  NOT NULL
+        timestamp without time zone created_at  
+        timestamp without time zone updated_at  
+    }
+    crew ||--o{ employees : "references"
+    crew_assignments ||--o{ crew : "references"
+    departments ||--o{ departments : "references"
+    employees ||--o{ positions : "references"
+    positions ||--o{ departments : "references"
+    </div>
+    </div>
+    <div class="schema-container">
+    <h2>Schema: finance</h2>
+    <h3>Table: expenses</h3>
+    <table>
+        <tr><th>Column</th><th>Data Type</th><th>Nullable</th><th>Default</th><th>Constraints</th></tr>
+        <tr><td>expense_id</td><td>integer</td><td>No</td><td>nextval('finance.expenses_expense_id_seq'::regclass)</td><td>Primary Key</td></tr>
+        <tr><td>expense_type</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>flight_id</td><td>integer</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>aircraft_id</td><td>integer</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>amount</td><td>numeric</td><td>No</td><td></td><td></td></tr>
+        <tr><td>currency</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>expense_date</td><td>timestamp without time zone</td><td>No</td><td></td><td></td></tr>
+        <tr><td>description</td><td>text</td><td>No</td><td></td><td></td></tr>
+        <tr><td>approved_by</td><td>integer</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>created_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+        <tr><td>updated_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+    </table>
+    <h3>Table: payments</h3>
+    <table>
+        <tr><th>Column</th><th>Data Type</th><th>Nullable</th><th>Default</th><th>Constraints</th></tr>
+        <tr><td>payment_id</td><td>integer</td><td>No</td><td>nextval('finance.payments_payment_id_seq'::regclass)</td><td>Primary Key</td></tr>
+        <tr><td>booking_id</td><td>integer</td><td>No</td><td></td><td></td></tr>
+        <tr><td>amount</td><td>numeric</td><td>No</td><td></td><td></td></tr>
+        <tr><td>currency</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>payment_date</td><td>timestamp without time zone</td><td>No</td><td></td><td></td></tr>
+        <tr><td>payment_method</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>transaction_id</td><td>character varying</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>status</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>created_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+        <tr><td>updated_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+    </table>
+    <h3>Table: refunds</h3>
+    <table>
+        <tr><th>Column</th><th>Data Type</th><th>Nullable</th><th>Default</th><th>Constraints</th></tr>
+        <tr><td>refund_id</td><td>integer</td><td>No</td><td>nextval('finance.refunds_refund_id_seq'::regclass)</td><td>Primary Key</td></tr>
+        <tr><td>payment_id</td><td>integer</td><td>No</td><td></td><td>Foreign Key to finance.payments(payment_id)</td></tr>
+        <tr><td>amount</td><td>numeric</td><td>No</td><td></td><td></td></tr>
+        <tr><td>currency</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>refund_date</td><td>timestamp without time zone</td><td>No</td><td></td><td></td></tr>
+        <tr><td>reason</td><td>text</td><td>No</td><td></td><td></td></tr>
+        <tr><td>approved_by</td><td>integer</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>status</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>created_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+        <tr><td>updated_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+    </table>
+    <h3>Table: revenue</h3>
+    <table>
+        <tr><th>Column</th><th>Data Type</th><th>Nullable</th><th>Default</th><th>Constraints</th></tr>
+        <tr><td>revenue_id</td><td>integer</td><td>No</td><td>nextval('finance.revenue_revenue_id_seq'::regclass)</td><td>Primary Key</td></tr>
+        <tr><td>flight_id</td><td>integer</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>revenue_type</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>amount</td><td>numeric</td><td>No</td><td></td><td></td></tr>
+        <tr><td>currency</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>entry_date</td><td>timestamp without time zone</td><td>No</td><td></td><td></td></tr>
+        <tr><td>description</td><td>text</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>created_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+        <tr><td>updated_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+    </table>
+    <div class="mermaid">
+erDiagram
+    expenses {
+        integer expense_id PK NOT NULL
+        character varying expense_type  NOT NULL
+        integer flight_id  
+        integer aircraft_id  
+        numeric amount  NOT NULL
+        character varying currency  NOT NULL
+        timestamp without time zone expense_date  NOT NULL
+        text description  NOT NULL
+        integer approved_by  
+        timestamp without time zone created_at  
+        timestamp without time zone updated_at  
+    }
+    payments {
+        integer payment_id PK NOT NULL
+        integer booking_id  NOT NULL
+        numeric amount  NOT NULL
+        character varying currency  NOT NULL
+        timestamp without time zone payment_date  NOT NULL
+        character varying payment_method  NOT NULL
+        character varying transaction_id  
+        character varying status  NOT NULL
+        timestamp without time zone created_at  
+        timestamp without time zone updated_at  
+    }
+    refunds {
+        integer refund_id PK NOT NULL
+        integer payment_id  NOT NULL
+        numeric amount  NOT NULL
+        character varying currency  NOT NULL
+        timestamp without time zone refund_date  NOT NULL
+        text reason  NOT NULL
+        integer approved_by  
+        character varying status  NOT NULL
+        timestamp without time zone created_at  
+        timestamp without time zone updated_at  
+    }
+    revenue {
+        integer revenue_id PK NOT NULL
+        integer flight_id  
+        character varying revenue_type  NOT NULL
+        numeric amount  NOT NULL
+        character varying currency  NOT NULL
+        timestamp without time zone entry_date  NOT NULL
+        text description  
+        timestamp without time zone created_at  
+        timestamp without time zone updated_at  
+    }
+    refunds ||--o{ payments : "references"
+    </div>
+    </div>
+    <div class="schema-container">
+    <h2>Schema: operations</h2>
+    <h3>Table: baggage</h3>
+    <table>
+        <tr><th>Column</th><th>Data Type</th><th>Nullable</th><th>Default</th><th>Constraints</th></tr>
+        <tr><td>baggage_id</td><td>integer</td><td>No</td><td>nextval('operations.baggage_baggage_id_seq'::regclass)</td><td>Primary Key</td></tr>
+        <tr><td>ticket_id</td><td>integer</td><td>No</td><td></td><td></td></tr>
+        <tr><td>weight_kg</td><td>numeric</td><td>No</td><td></td><td></td></tr>
+        <tr><td>tag_number</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>status</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>handling_instructions</td><td>text</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>created_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+        <tr><td>updated_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+    </table>
+    <h3>Table: cargo</h3>
+    <table>
+        <tr><th>Column</th><th>Data Type</th><th>Nullable</th><th>Default</th><th>Constraints</th></tr>
+        <tr><td>cargo_id</td><td>integer</td><td>No</td><td>nextval('operations.cargo_cargo_id_seq'::regclass)</td><td>Primary Key</td></tr>
+        <tr><td>flight_id</td><td>integer</td><td>No</td><td></td><td></td></tr>
+        <tr><td>weight_kg</td><td>numeric</td><td>No</td><td></td><td></td></tr>
+        <tr><td>volume_cubic_meters</td><td>numeric</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>content_type</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>handling_instructions</td><td>text</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>shipper_name</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>shipper_contact</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>recipient_name</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>recipient_contact</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>charge_amount</td><td>numeric</td><td>No</td><td></td><td></td></tr>
+        <tr><td>status</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>created_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+        <tr><td>updated_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+    </table>
+    <h3>Table: catering</h3>
+    <table>
+        <tr><th>Column</th><th>Data Type</th><th>Nullable</th><th>Default</th><th>Constraints</th></tr>
+        <tr><td>catering_id</td><td>integer</td><td>No</td><td>nextval('operations.catering_catering_id_seq'::regclass)</td><td>Primary Key</td></tr>
+        <tr><td>flight_id</td><td>integer</td><td>No</td><td></td><td></td></tr>
+        <tr><td>supplier_name</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>meal_types</td><td>text</td><td>No</td><td></td><td></td></tr>
+        <tr><td>meal_count_economy</td><td>integer</td><td>No</td><td></td><td></td></tr>
+        <tr><td>meal_count_business</td><td>integer</td><td>No</td><td></td><td></td></tr>
+        <tr><td>meal_count_first</td><td>integer</td><td>No</td><td></td><td></td></tr>
+        <tr><td>special_meals</td><td>integer</td><td>No</td><td></td><td></td></tr>
+        <tr><td>cost</td><td>numeric</td><td>No</td><td></td><td></td></tr>
+        <tr><td>delivery_time</td><td>timestamp without time zone</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>created_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+        <tr><td>updated_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+    </table>
+    <h3>Table: incidents</h3>
+    <table>
+        <tr><th>Column</th><th>Data Type</th><th>Nullable</th><th>Default</th><th>Constraints</th></tr>
+        <tr><td>incident_id</td><td>integer</td><td>No</td><td>nextval('operations.incidents_incident_id_seq'::regclass)</td><td>Primary Key</td></tr>
+        <tr><td>flight_id</td><td>integer</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>aircraft_id</td><td>integer</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>incident_time</td><td>timestamp without time zone</td><td>No</td><td></td><td></td></tr>
+        <tr><td>incident_type</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>location</td><td>character varying</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>description</td><td>text</td><td>No</td><td></td><td></td></tr>
+        <tr><td>severity</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>reported_by</td><td>integer</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>resolution</td><td>text</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>resolution_time</td><td>timestamp without time zone</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>created_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+        <tr><td>updated_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+    </table>
+    <h3>Table: maintenance</h3>
+    <table>
+        <tr><th>Column</th><th>Data Type</th><th>Nullable</th><th>Default</th><th>Constraints</th></tr>
+        <tr><td>maintenance_id</td><td>integer</td><td>No</td><td>nextval('operations.maintenance_maintenance_id_seq'::regclass)</td><td>Primary Key</td></tr>
+        <tr><td>aircraft_id</td><td>integer</td><td>No</td><td></td><td></td></tr>
+        <tr><td>maintenance_type</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>start_time</td><td>timestamp without time zone</td><td>No</td><td></td><td></td></tr>
+        <tr><td>end_time</td><td>timestamp without time zone</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>description</td><td>text</td><td>No</td><td></td><td></td></tr>
+        <tr><td>performed_by</td><td>integer</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>status</td><td>character varying</td><td>No</td><td></td><td></td></tr>
+        <tr><td>cost</td><td>numeric</td><td>Yes</td><td></td><td></td></tr>
+        <tr><td>created_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+        <tr><td>updated_at</td><td>timestamp without time zone</td><td>Yes</td><td>CURRENT_TIMESTAMP</td><td></td></tr>
+    </table>
+    <div class="mermaid">
+erDiagram
+    baggage {
+        integer baggage_id PK NOT NULL
+        integer ticket_id  NOT NULL
+        numeric weight_kg  NOT NULL
+        character varying tag_number  NOT NULL
+        character varying status  NOT NULL
+        text handling_instructions  
+        timestamp without time zone created_at  
+        timestamp without time zone updated_at  
+    }
+    cargo {
+        integer cargo_id PK NOT NULL
+        integer flight_id  NOT NULL
+        numeric weight_kg  NOT NULL
+        numeric volume_cubic_meters  
+        character varying content_type  NOT NULL
+        text handling_instructions  
+        character varying shipper_name  NOT NULL
+        character varying shipper_contact  NOT NULL
+        character varying recipient_name  NOT NULL
+        character varying recipient_contact  NOT NULL
+        numeric charge_amount  NOT NULL
+        character varying status  NOT NULL
+        timestamp without time zone created_at  
+        timestamp without time zone updated_at  
+    }
+    catering {
+        integer catering_id PK NOT NULL
+        integer flight_id  NOT NULL
+        character varying supplier_name  NOT NULL
+        text meal_types  NOT NULL
+        integer meal_count_economy  NOT NULL
+        integer meal_count_business  NOT NULL
+        integer meal_count_first  NOT NULL
+        integer special_meals  NOT NULL
+        numeric cost  NOT NULL
+        timestamp without time zone delivery_time  
+        timestamp without time zone created_at  
+        timestamp without time zone updated_at  
+    }
+    incidents {
+        integer incident_id PK NOT NULL
+        integer flight_id  
+        integer aircraft_id  
+        timestamp without time zone incident_time  NOT NULL
+        character varying incident_type  NOT NULL
+        character varying location  
+        text description  NOT NULL
+        character varying severity  NOT NULL
+        integer reported_by  
+        text resolution  
+        timestamp without time zone resolution_time  
+        timestamp without time zone created_at  
+        timestamp without time zone updated_at  
+    }
+    maintenance {
+        integer maintenance_id PK NOT NULL
+        integer aircraft_id  NOT NULL
+        character varying maintenance_type  NOT NULL
+        timestamp without time zone start_time  NOT NULL
+        timestamp without time zone end_time  
+        text description  NOT NULL
+        integer performed_by  
+        character varying status  NOT NULL
+        numeric cost  
+        timestamp without time zone created_at  
+        timestamp without time zone updated_at  
+    }
+    </div>
+    </div>
+    <h2>Full Database Diagram</h2>
+    <div class="mermaid">
+erDiagram
+    core_aircraft {
+        integer aircraft_id PK
+        character varying registration_number 
+        integer aircraft_type_id 
+        ... ... ...
+    }
+    core_aircraft_types {
+        integer aircraft_type_id PK
+        character varying model 
+        character varying manufacturer 
+        ... ... ...
+    }
+    core_airports {
+        integer airport_id PK
+        character iata_code 
+        character varying name 
+        ... ... ...
+    }
+    core_flight_schedules {
+        integer schedule_id PK
+        integer route_id 
+        character varying flight_number 
+        ... ... ...
+    }
+    core_flights {
+        integer flight_id PK
+        integer schedule_id 
+        integer aircraft_id 
+        ... ... ...
+    }
+    core_routes {
+        integer route_id PK
+        integer origin_airport_id 
+        integer destination_airport_id 
+        ... ... ...
+    }
+    customer_bookings {
+        integer booking_id PK
+        character varying booking_reference 
+        integer passenger_id 
+        ... ... ...
+    }
+    customer_loyalty_program {
+        integer loyalty_id PK
+        integer passenger_id 
+        character varying membership_number 
+        ... ... ...
+    }
+    customer_passengers {
+        integer passenger_id PK
+        character varying title 
+        character varying first_name 
+        ... ... ...
+    }
+    customer_special_requests {
+        integer request_id PK
+        integer ticket_id 
+        character varying request_type 
+        ... ... ...
+    }
+    customer_tickets {
+        integer ticket_id PK
+        integer booking_id 
+        integer flight_id 
+        integer passenger_id 
+        ... ... ...
+    }
+    employee_crew {
+        integer crew_id PK
+        integer employee_id 
+        character varying crew_type 
+        ... ... ...
+    }
+    employee_crew_assignments {
+        integer assignment_id PK
+        integer crew_id 
+        integer flight_id 
+        ... ... ...
+    }
+    employee_departments {
+        integer department_id PK
+        character varying department_name 
+        character varying department_code 
+        integer parent_department_id 
+        ... ... ...
+    }
+    employee_employees {
+        integer employee_id PK
+        character varying employee_number 
+        character varying first_name 
+        integer position_id 
+        ... ... ...
+    }
+    employee_positions {
+        integer position_id PK
+        character varying position_name 
+        integer department_id 
+        ... ... ...
+    }
+    finance_expenses {
+        integer expense_id PK
+        character varying expense_type 
+        integer flight_id 
+        integer aircraft_id 
+        ... ... ...
+    }
+    finance_payments {
+        integer payment_id PK
+        integer booking_id 
+        numeric amount 
+        character varying transaction_id 
+        ... ... ...
+    }
+    finance_refunds {
+        integer refund_id PK
+        integer payment_id 
+        numeric amount 
+        ... ... ...
+    }
+    finance_revenue {
+        integer revenue_id PK
+        integer flight_id 
+        character varying revenue_type 
+        ... ... ...
+    }
+    operations_baggage {
+        integer baggage_id PK
+        integer ticket_id 
+        numeric weight_kg 
+        ... ... ...
+    }
+    operations_cargo {
+        integer cargo_id PK
+        integer flight_id 
+        numeric weight_kg 
+        ... ... ...
+    }
+    operations_catering {
+        integer catering_id PK
+        integer flight_id 
+        character varying supplier_name 
+        ... ... ...
+    }
+    operations_incidents {
+        integer incident_id PK
+        integer flight_id 
+        integer aircraft_id 
+        ... ... ...
+    }
+    operations_maintenance {
+        integer maintenance_id PK
+        integer aircraft_id 
+        character varying maintenance_type 
+        ... ... ...
+    }
+    core_aircraft ||--o{ core_aircraft_types : "references"
+    core_flight_schedules ||--o{ core_routes : "references"
+    core_flights ||--o{ core_flight_schedules : "references"
+    core_flights ||--o{ core_aircraft : "references"
+    core_routes ||--o{ core_airports : "references"
+    core_routes ||--o{ core_airports : "references"
+    customer_bookings ||--o{ customer_passengers : "references"
+    customer_loyalty_program ||--o{ customer_passengers : "references"
+    customer_special_requests ||--o{ customer_tickets : "references"
+    customer_tickets ||--o{ customer_bookings : "references"
+    customer_tickets ||--o{ customer_passengers : "references"
+    employee_crew ||--o{ employee_employees : "references"
+    employee_crew_assignments ||--o{ employee_crew : "references"
+    employee_departments ||--o{ employee_departments : "references"
+    employee_employees ||--o{ employee_positions : "references"
+    employee_positions ||--o{ employee_departments : "references"
+    finance_refunds ||--o{ finance_payments : "references"
+    </div>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default', securityLevel: 'loose', er: { useMaxWidth: false } });
+    </script>
+</body>
+</html>

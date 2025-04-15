@@ -48,7 +48,7 @@ LEFT JOIN
 WHERE 
     p.passenger_id = 1  -- Change this to a valid passenger_id
 GROUP BY 
-    p.first_name, p.last_name, b.booking_id, b.booking_reference, b.booking_date, b.booking_status, b.total_amount, b.payment_status
+    p.first_name, p.last_name, b.booking_reference, b.booking_date, b.booking_status, b.total_amount, b.payment_status, b.booking_id
 ORDER BY 
     b.booking_date DESC;
 
@@ -59,27 +59,57 @@ SELECT
     f.flight_date,
     a_origin.iata_code AS origin,
     a_dest.iata_code AS destination,
-    COUNT(t.ticket_id) AS passenger_countments,
-    AVG(EXTRACT(EPOCH FROM (COALESCE(f.actual_arrival, f.scheduled_arrival) - COALESCE(f.actual_departure, f.scheduled_departure)))/3600) AS avg_flight_duration_hours,
-    AVG(CASE WHEN f.actual_departure IS NOT NULL THEN EXTRACT(EPOCH FROM (f.actual_departure - f.scheduled_departure))/60 ELSE NULL END) AS avg_departure_delay_minutes,
-    AVG(CASE WHEN f.actual_arrival IS NOT NULL THEN EXTRACT(EPOCH FROM (f.actual_arrival - f.scheduled_arrival))/60 ELSE NULL END) AS avg_arrival_delay_minutes,
-    COUNT(CASE WHEN f.status = 'Cancelled' THEN 1 ELSE NULL END) AS cancelled_flights,
-    COUNT(CASE WHEN f.status = 'Diverted' THEN 1 ELSE NULL END) AS diverted_flights,
-    AVG(frv.passenger_count) AS avg_passengers,
-    AVG(frv.ticket_revenue) AS avg_ticket_revenue,
-    AVG(frv.profit) AS avg_profit
+    COUNT(t.ticket_id) AS passenger_count,
+    (at.capacity_economy + at.capacity_business + at.capacity_first) AS total_capacity,
+    (COUNT(t.ticket_id)::DECIMAL / (at.capacity_economy + at.capacity_business + at.capacity_first)::DECIMAL) * 100 AS load_factor
+FROM 
+    core.flights f
+JOIN 
+    core.flight_schedules fs ON f.schedule_id = fs.schedule_id
+JOIN 
+    core.routes r ON fs.route_id = r.route_id
+JOIN 
+    core.airports a_origin ON r.origin_airport_id = a_origin.airport_id
+JOIN 
+    core.airports a_dest ON r.destination_airport_id = a_dest.airport_id
+JOIN 
+    core.aircraft ac ON f.aircraft_id = ac.aircraft_id
+JOIN 
+    core.aircraft_types at ON ac.aircraft_type_id = at.aircraft_type_id
+LEFT JOIN 
+    customer.tickets t ON f.flight_id = t.flight_id
+WHERE 
+    fs.flight_number = 'KQ100' AND f.flight_date = CURRENT_DATE
+GROUP BY 
+    fs.flight_number, f.flight_date, a_origin.iata_code, a_dest.iata_code, at.capacity_economy, at.capacity_business, at.capacity_first
+ORDER BY 
+    load_factor DESC;
+
+-- 4. Route Profitability
+-- Analyze route profitability for the last 30 days
+SELECT 
+    a_origin.iata_code || '-' || a_dest.iata_code AS route,
+    a_origin.city AS origin_city,
+    a_dest.city AS destination_city,
+    COUNT(f.flight_id) AS total_flights,
+    SUM(t.fare_amount) AS ticket_revenue,
+    SUM(c.charge_amount) AS cargo_revenue,
+    (SELECT SUM(amount) FROM finance.expenses WHERE flight_id IN (SELECT f2.flight_id FROM core.flights f2 JOIN core.flight_schedules fs2 ON f2.schedule_id = fs2.schedule_id WHERE fs2.route_id = r.route_id AND f2.flight_date BETWEEN CURRENT_DATE - INTERVAL '30 days' AND CURRENT_DATE)) AS total_expenses,
+    SUM(t.fare_amount) + SUM(c.charge_amount) - (SELECT COALESCE(SUM(amount), 0) FROM finance.expenses WHERE flight_id IN (SELECT f2.flight_id FROM core.flights f2 JOIN core.flight_schedules fs2 ON f2.schedule_id = fs2.schedule_id WHERE fs2.route_id = r.route_id AND f2.flight_date BETWEEN CURRENT_DATE - INTERVAL '30 days' AND CURRENT_DATE)) AS profit
 FROM 
     core.routes r
 JOIN 
     core.airports a_origin ON r.origin_airport_id = a_origin.airport_id
 JOIN 
     core.airports a_dest ON r.destination_airport_id = a_dest.airport_id
-LEFT JOIN 
+JOIN 
     core.flight_schedules fs ON r.route_id = fs.route_id
-LEFT JOIN 
+JOIN 
     core.flights f ON fs.schedule_id = f.schedule_id
 LEFT JOIN 
-    finance.flight_revenue_view frv ON f.flight_id = frv.flight_id
+    customer.tickets t ON f.flight_id = t.flight_id
+LEFT JOIN 
+    operations.cargo c ON f.flight_id = c.flight_id
 WHERE 
     f.flight_date BETWEEN CURRENT_DATE - INTERVAL '30 days' AND CURRENT_DATE
 GROUP BY 
@@ -136,7 +166,7 @@ ORDER BY
     duty_hours DESC
 LIMIT 20;
 
--- 7. Passenger Manifest for a Flight
+-- 7. Passenger Manifest
 -- Generate a passenger manifest for a specific flight
 SELECT 
     t.ticket_number,
@@ -263,7 +293,7 @@ SELECT
     AVG(points_balance) AS avg_points,
     MIN(points_balance) AS min_points,
     MAX(points_balance) AS max_points,
-    AVG(EXTRACT(EPOCH FROM (expiry_date - join_date))/86400/365) AS avg_membership_years
+    AVG(EXTRACT(EPOCH FROM (expiry_date::timestamp - join_date::timestamp))/86400/365) AS avg_membership_years
 FROM 
     customer.loyalty_program
 GROUP BY 
@@ -318,15 +348,25 @@ ORDER BY
     i.incident_time DESC;
 
 -- 13. Using Stored Procedures and Functions
+-- Examples of using stored procedures and functions
 
 -- Calculate load factor for a specific flight
-SELECT core.calculate_load_factor(1) AS load_factor;  -- Change 1 to a valid flight_id
+-- Use flight_id 1 (adjust as needed)
+SELECT core.calculate_load_factor(1) AS load_factor;
 
 -- Get available seats for a flight
-SELECT * FROM customer.get_available_seats(1, 'Economy');  -- Change 1 to a valid flight_id
+-- Use flight_id 1 and Economy class (adjust as needed)
+SELECT seat_number 
+FROM customer.get_available_seats(1, 'Economy');
 
 -- Generate flight manifest
-SELECT * FROM core.generate_flight_manifest(1);  -- Change 1 to a valid flight_id
+-- Use flight_id 1 (adjust as needed)
+SELECT * FROM core.generate_flight_manifest(1);
 
 -- Calculate route profitability
-SELECT * FROM finance.calculate_route_profitability(1, CURRENT_DATE - INTERVAL '30 days', CURRENT_DATE);  -- Change 1 to a valid route_id
+-- Use route_id 1 and appropriate date range (adjust as needed)
+SELECT * FROM finance.calculate_route_profitability(
+  1, 
+  (CURRENT_DATE - INTERVAL '30 days')::date, 
+  CURRENT_DATE::date
+);

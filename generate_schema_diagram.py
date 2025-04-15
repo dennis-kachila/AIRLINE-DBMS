@@ -18,7 +18,7 @@ from collections import defaultdict
 # Database connection parameters
 DB_NAME = "kenya_airways"
 DB_USER = "postgres"  # Default PostgreSQL superuser
-DB_PASSWORD = ""  # Set your password if needed
+DB_PASSWORD = "postgres"  # Standard default password for development environments
 DB_HOST = "localhost"
 DB_PORT = "5432"
 
@@ -32,7 +32,11 @@ SCHEMA_COLORS = {
 }
 
 def connect_to_db():
-    """Connect to the PostgreSQL database server"""
+    """Connect to the PostgreSQL database server using various authentication methods"""
+    # Try different connection methods
+    connection_errors = []
+    
+    # Method 1: Try with default password
     try:
         conn = psycopg2.connect(
             dbname=DB_NAME,
@@ -43,8 +47,84 @@ def connect_to_db():
         )
         return conn
     except (Exception, psycopg2.DatabaseError) as error:
-        print(f"Error connecting to PostgreSQL: {error}")
-        sys.exit(1)
+        connection_errors.append(f"Password authentication failed: {error}")
+    
+    # Method 2: Try peer authentication (Unix socket)
+    try:
+        conn = psycopg2.connect(
+            dbname=DB_NAME,
+            user=DB_USER
+        )
+        return conn
+    except (Exception, psycopg2.DatabaseError) as error:
+        connection_errors.append(f"Peer authentication failed: {error}")
+    
+    # Method 3: Try with no password
+    try:
+        conn = psycopg2.connect(
+            dbname=DB_NAME,
+            user=DB_USER,
+            password="",
+            host=DB_HOST,
+            port=DB_PORT
+        )
+        return conn
+    except (Exception, psycopg2.DatabaseError) as error:
+        connection_errors.append(f"No password authentication failed: {error}")
+    
+    # If all methods fail, print errors and exit
+    for err in connection_errors:
+        print(err)
+    
+    print("\nCould not connect to the database. Please check your PostgreSQL configuration.")
+    print("You might need to modify the database connection parameters in the script.")
+    
+    # Create a fake HTML file with error message
+    create_error_html(connection_errors)
+    
+    sys.exit(1)
+
+def create_error_html(errors):
+    """Create an HTML file with error information"""
+    html = [
+        "<!DOCTYPE html>",
+        "<html>",
+        "<head>",
+        "    <meta charset=\"UTF-8\">",
+        "    <title>Kenya Airways Database Schema - Error</title>",
+        "    <style>",
+        "        body { font-family: Arial, sans-serif; margin: 20px; }",
+        "        h1 { color: #cc0000; }",
+        "        .error { background-color: #ffeeee; padding: 10px; border: 1px solid #cc0000; margin: 10px 0; }",
+        "        pre { background-color: #f5f5f5; padding: 10px; overflow: auto; }",
+        "    </style>",
+        "</head>",
+        "<body>",
+        "    <h1>Error Connecting to Database</h1>",
+        "    <p>The schema diagram generator could not connect to the database. Please check your PostgreSQL configuration.</p>",
+        "    <h2>Error Details</h2>"
+    ]
+    
+    for i, error in enumerate(errors):
+        html.append(f"    <div class=\"error\">")
+        html.append(f"        <h3>Connection Method {i+1}</h3>")
+        html.append(f"        <pre>{error}</pre>")
+        html.append(f"    </div>")
+    
+    html.extend([
+        "    <h2>Possible Solutions</h2>",
+        "    <ol>",
+        "        <li>Ensure PostgreSQL is running</li>",
+        "        <li>Check that the database 'kenya_airways' exists</li>", 
+        "        <li>Update the PostgreSQL connection parameters in generate_schema_diagram.py</li>",
+        "        <li>Set the correct password for the postgres user</li>",
+        "    </ol>",
+        "</body>",
+        "</html>"
+    ])
+    
+    with open("kenya_airways_schema.html", "w") as f:
+        f.write("\n".join(html))
 
 def get_tables(conn):
     """Get all tables from the database"""
@@ -76,24 +156,25 @@ def get_columns(conn, schema, table):
     columns = []
     try:
         cursor = conn.cursor()
+        # Simplified query that doesn't use the @> array operator
         cursor.execute("""
             SELECT 
                 column_name, 
                 data_type,
                 is_nullable,
                 column_default,
-                (SELECT 
-                    pg_catalog.pg_get_constraintdef(con.oid)
-                FROM 
-                    pg_catalog.pg_constraint con
-                    INNER JOIN pg_catalog.pg_class rel ON rel.oid = con.conrelid
-                    INNER JOIN pg_catalog.pg_namespace nsp ON nsp.oid = rel.relnamespace
-                WHERE 
-                    con.contype = 'p' 
-                    AND rel.relname = %s
-                    AND nsp.nspname = %s
-                    AND con.conkey @> ARRAY[c.ordinal_position]
-                ) AS primary_key
+                CASE WHEN EXISTS (
+                    SELECT 1
+                    FROM pg_catalog.pg_constraint con
+                    JOIN pg_catalog.pg_class rel ON rel.oid = con.conrelid
+                    JOIN pg_catalog.pg_namespace nsp ON nsp.oid = rel.relnamespace
+                    JOIN pg_catalog.pg_attribute att ON att.attrelid = rel.oid
+                    WHERE con.contype = 'p' 
+                      AND rel.relname = %s
+                      AND nsp.nspname = %s
+                      AND att.attname = c.column_name
+                      AND att.attnum = ANY(con.conkey)
+                ) THEN 'PRIMARY KEY' ELSE NULL END AS primary_key
             FROM 
                 information_schema.columns c
             WHERE 

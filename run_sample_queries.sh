@@ -5,6 +5,7 @@
 DB_NAME="kenya_airways"
 DB_USER="postgres"  # Default PostgreSQL superuser
 QUERIES_FILE="sample_queries.sql"
+TEMP_QUERY_FILE="/tmp/temp_query.sql"
 
 # Display welcome message
 echo "====================================================="
@@ -37,19 +38,46 @@ echo "This script will help you run sample queries against the Kenya Airways dat
 echo "You can run individual queries or all queries at once."
 echo
 
-# Function to run a specific query
-run_query() {
+# Function to run a specific query by comment marker
+run_query_by_marker() {
     local query_number=$1
     local query_name=$2
-    local start_line=$3
-    local end_line=$4
+    local marker="-- $query_number. $query_name"
+    local next_marker="-- $(($query_number + 1))."
     
     echo "====================================================="
     echo "Running Query $query_number: $query_name"
     echo "====================================================="
     
-    # Extract and run the query
-    sed -n "${start_line},${end_line}p" "$QUERIES_FILE" | PGPASSWORD="" psql -U postgres -d "$DB_NAME" -X
+    # Find the query by its marker and extract until the next marker
+    # First grep finds the line number of our marker
+    start_line=$(grep -n "^$marker" "$QUERIES_FILE" | cut -d: -f1)
+    
+    if [ -z "$start_line" ]; then
+        echo "Error: Could not find query marker '$marker' in the file."
+        return
+    fi
+    
+    # Extract the query to a temporary file
+    start_line=$((start_line + 1))  # Skip the marker line
+    
+    # Find the next marker or EOF
+    if grep -q "^-- $(($query_number + 1))." "$QUERIES_FILE"; then
+        end_line=$(grep -n "^-- $(($query_number + 1))." "$QUERIES_FILE" | cut -d: -f1)
+        end_line=$((end_line - 1))
+    else
+        # If it's the last query, go to the end of file
+        end_line=$(wc -l "$QUERIES_FILE" | awk '{print $1}')
+    fi
+    
+    # Extract the query to temp file
+    sed -n "${start_line},${end_line}p" "$QUERIES_FILE" > "$TEMP_QUERY_FILE"
+    
+    # Run the query
+    PGPASSWORD="" psql -U postgres -d "$DB_NAME" -f "$TEMP_QUERY_FILE" -X
+    
+    # Clean up
+    rm -f "$TEMP_QUERY_FILE"
     
     echo
     read -p "Press Enter to continue..."
@@ -84,19 +112,19 @@ while true; do
     echo
     
     case $choice in
-        1) run_query 1 "Flight Information" 4 24 ;;
-        2) run_query 2 "Passenger Bookings" 27 49 ;;
-        3) run_query 3 "Flight Load Factor" 52 79 ;;
-        4) run_query 4 "Route Profitability" 82 112 ;;
-        5) run_query 5 "Aircraft Utilization" 115 140 ;;
-        6) run_query 6 "Crew Duty Hours" 143 166 ;;
-        7) run_query 7 "Passenger Manifest" 169 193 ;;
-        8) run_query 8 "Revenue by Flight" 196 225 ;;
-        9) run_query 9 "Baggage Statistics" 228 257 ;;
-        10) run_query 10 "Maintenance Schedule" 260 282 ;;
-        11) run_query 11 "Loyalty Program Statistics" 285 307 ;;
-        12) run_query 12 "Incident Report" 310 347 ;;
-        13) run_query 13 "Using Stored Procedures and Functions" 350 361 ;;
+        1) run_query_by_marker 1 "Flight Information" ;;
+        2) run_query_by_marker 2 "Passenger Bookings" ;;
+        3) run_query_by_marker 3 "Flight Load Factor" ;;
+        4) run_query_by_marker 4 "Route Profitability" ;;
+        5) run_query_by_marker 5 "Aircraft Utilization" ;;
+        6) run_query_by_marker 6 "Crew Duty Hours" ;;
+        7) run_query_by_marker 7 "Passenger Manifest" ;;
+        8) run_query_by_marker 8 "Revenue by Flight" ;;
+        9) run_query_by_marker 9 "Baggage Statistics" ;;
+        10) run_query_by_marker 10 "Maintenance Schedule" ;;
+        11) run_query_by_marker 11 "Loyalty Program Statistics" ;;
+        12) run_query_by_marker 12 "Incident Report" ;;
+        13) run_query_by_marker 13 "Using Stored Procedures and Functions" ;;
         14)
             echo "Running all queries..."
             PGPASSWORD="" psql -U postgres -d "$DB_NAME" -f "$QUERIES_FILE"

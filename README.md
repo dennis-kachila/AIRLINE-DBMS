@@ -13,6 +13,7 @@ This project includes the following files:
 - **run_sample_queries.sh**: Interactive script to run example queries
 - **sample_queries.sql**: Collection of example queries demonstrating database capabilities
 - **generate_schema_diagram.py**: Python script to generate a visual diagram of the database schema
+- **kenya_airways_db.sh**: Main script to run the database system with interactive menu
 
 ## Database Overview
 
@@ -79,7 +80,27 @@ The database consists of the following key entities and their relationships:
 - PostgreSQL 12 or higher
 - At least 100MB of disk space
 - Python 3.6+ (for schema diagram generation)
-- psycopg2 Python package (for schema diagram generation)
+- Python packages:
+  - psycopg2-binary (for PostgreSQL connectivity)
+
+### Python Setup
+
+1. Install Python 3 and pip if not already installed:
+```bash
+sudo apt update
+sudo apt install -y python3-full
+```
+
+2. Create a Python virtual environment (recommended):
+```bash
+python3 -m venv ~/venv
+source ~/venv/bin/activate
+```
+
+3. Install the required Python packages:
+```bash
+pip install psycopg2-binary
+```
 
 ### Quick Setup
 
@@ -87,18 +108,18 @@ The easiest way to set up the database is to use the provided initialization scr
 
 ```bash
 # Make the script executable (if not already)
-chmod +x initialize_database.sh
+chmod +x initialize_database.sh kenya_airways_db.sh run_sample_queries.sh
 
-# Run the initialization script
-./initialize_database.sh
+# Run the main system script
+./kenya_airways_db.sh
 ```
 
-This script will:
-1. Create the Kenya Airways database
-2. Create the schema (tables, indexes, views)
-3. Create stored procedures and functions
-4. Optionally load sample data
-5. Optionally create a dedicated database user
+This main script will provide a menu with options to:
+1. Initialize the database (create schema and load data)
+2. Run sample queries
+3. Generate a schema diagram (requires Python and psycopg2)
+4. View README
+5. View SQL scripts
 
 ### Installing PostgreSQL
 
@@ -110,18 +131,6 @@ sudo apt-get update
 
 # Install PostgreSQL
 sudo apt-get install postgresql postgresql-contrib -y
-```
-
-### Quick Setup and Running the Project
-
-1. Make all scripts executable:
-```bash
-chmod +x kenya_airways_db.sh initialize_database.sh run_sample_queries.sh generate_schema_diagram.py
-```
-
-2. Run the main menu script:
-```bash
-./kenya_airways_db.sh
 ```
 
 ### Manual Setup
@@ -154,6 +163,77 @@ psql -d kenya_airways -f sample_data.sql
 psql -d kenya_airways -f sample_data_part2.sql
 psql -d kenya_airways -f sample_data_part3.sql
 ```
+
+## Running the Project
+
+### Using the Main Menu System
+
+The project includes an interactive menu system that makes it easy to work with the database:
+
+1. Make sure all scripts are executable:
+```bash
+chmod +x kenya_airways_db.sh initialize_database.sh run_sample_queries.sh
+```
+
+2. Activate the Python virtual environment (if created):
+```bash
+source ~/venv/bin/activate
+```
+
+3. Launch the main menu:
+```bash
+./kenya_airways_db.sh
+```
+
+4. Select from the available options:
+   - Option 1: Initialize Database (Create schema and load data)
+   - Option 2: Run Sample Queries
+   - Option 3: Generate Schema Diagram
+   - Option 4: View README
+   - Option 5: View SQL Scripts
+   - Option 0: Exit
+
+### Generating the Schema Diagram
+
+The system can generate an interactive HTML diagram showing the database schema:
+
+1. Make sure Python and psycopg2-binary are installed:
+```bash
+source ~/venv/bin/activate  # If using a virtual environment
+pip install psycopg2-binary
+```
+
+2. Use option 3 in the main menu or run directly:
+```bash
+./generate_schema_diagram.py
+```
+
+3. Open the generated HTML file in a web browser:
+```bash
+# Using a web browser
+firefox kenya_airways_schema.html  # or any other browser
+```
+
+The schema diagram provides a visual representation of all tables, their columns, relationships, and constraints.
+
+## Recent Updates and Fixes
+
+The following enhancements have been made to the system:
+
+1. Fixed SQL query errors in sample_queries.sql
+   - Corrected column references and GROUP BY clauses
+   - Added proper type casting for date calculations
+   - Fixed column name references in stored procedure calls
+
+2. Improved run_sample_queries.sh script
+   - Changed query extraction to use comment markers instead of fixed line numbers
+   - Enhanced error handling for more reliable execution
+
+3. Added robust PostgreSQL connection handling for schema diagram generation
+   - Implemented multiple authentication methods
+   - Added better error reporting for connection issues
+
+4. Fixed schema diagram generation to work with PostgreSQL array compatibility issues
 
 ## Key Features
 
@@ -214,7 +294,7 @@ JOIN
 LEFT JOIN 
     core.aircraft ac ON f.aircraft_id = ac.aircraft_id
 WHERE 
-    f.flight_date = '2023-05-01'
+    f.flight_date = '2025-04-15'
 ORDER BY 
     f.scheduled_departure;
 ```
@@ -273,7 +353,7 @@ JOIN
 LEFT JOIN 
     customer.tickets t ON f.flight_id = t.flight_id
 WHERE 
-    fs.flight_number = 'KQ100' AND f.flight_date = '2023-05-01'
+    fs.flight_number = 'KQ100' AND f.flight_date = '2025-04-15'
 GROUP BY 
     fs.flight_number, f.flight_date, a_origin.iata_code, a_dest.iata_code, at.capacity_economy, at.capacity_business, at.capacity_first;
 ```
@@ -289,8 +369,8 @@ SELECT
     COUNT(f.flight_id) AS total_flights,
     SUM(t.fare_amount) AS ticket_revenue,
     SUM(c.charge_amount) AS cargo_revenue,
-    (SELECT SUM(amount) FROM finance.expenses WHERE flight_id IN (SELECT f2.flight_id FROM core.flights f2 JOIN core.flight_schedules fs2 ON f2.schedule_id = fs2.schedule_id WHERE fs2.route_id = r.route_id AND f2.flight_date BETWEEN '2023-01-01' AND '2023-03-31')) AS total_expenses,
-    SUM(t.fare_amount) + SUM(c.charge_amount) - (SELECT COALESCE(SUM(amount), 0) FROM finance.expenses WHERE flight_id IN (SELECT f2.flight_id FROM core.flights f2 JOIN core.flight_schedules fs2 ON f2.schedule_id = fs2.schedule_id WHERE fs2.route_id = r.route_id AND f2.flight_date BETWEEN '2023-01-01' AND '2023-03-31')) AS profit
+    (SELECT SUM(amount) FROM finance.expenses WHERE flight_id IN (SELECT f2.flight_id FROM core.flights f2 JOIN core.flight_schedules fs2 ON f2.schedule_id = fs2.schedule_id WHERE fs2.route_id = r.route_id AND f2.flight_date BETWEEN '2025-03-16' AND '2025-04-15')) AS total_expenses,
+    SUM(t.fare_amount) + SUM(c.charge_amount) - (SELECT COALESCE(SUM(amount), 0) FROM finance.expenses WHERE flight_id IN (SELECT f2.flight_id FROM core.flights f2 JOIN core.flight_schedules fs2 ON f2.schedule_id = fs2.schedule_id WHERE fs2.route_id = r.route_id AND f2.flight_date BETWEEN '2025-03-16' AND '2025-04-15')) AS profit
 FROM 
     core.routes r
 JOIN 
@@ -306,7 +386,7 @@ LEFT JOIN
 LEFT JOIN 
     operations.cargo c ON f.flight_id = c.flight_id
 WHERE 
-    f.flight_date BETWEEN '2023-01-01' AND '2023-03-31'
+    f.flight_date BETWEEN '2025-03-16' AND '2025-04-15'
 GROUP BY 
     r.route_id, a_origin.iata_code, a_dest.iata_code, a_origin.city, a_dest.city
 ORDER BY 
@@ -322,7 +402,7 @@ SELECT
     act.manufacturer || ' ' || act.model AS aircraft_type,
     COUNT(f.flight_id) AS total_flights,
     SUM(r.distance_km) AS total_distance_flown,
-    SUM(EXTRACT(EPOCH FROM (f.actual_arrival - f.actual_departure))/3600) AS total_flight_hours,
+    SUM(EXTRACT(EPOCH FROM (COALESCE(f.actual_arrival, f.scheduled_arrival) - COALESCE(f.actual_departure, f.scheduled_departure)))/3600) AS total_flight_hours,
     COUNT(DISTINCT f.flight_date) AS days_in_service,
     (SELECT COUNT(*) FROM operations.maintenance m WHERE m.aircraft_id = ac.aircraft_id) AS maintenance_events
 FROM 
@@ -330,13 +410,13 @@ FROM
 JOIN 
     core.aircraft_types act ON ac.aircraft_type_id = act.aircraft_type_id
 LEFT JOIN 
-    core.flights f ON ac.aircraft_id = f.aircraft_id AND f.actual_departure IS NOT NULL AND f.actual_arrival IS NOT NULL
+    core.flights f ON ac.aircraft_id = f.aircraft_id
 LEFT JOIN 
     core.flight_schedules fs ON f.schedule_id = fs.schedule_id
 LEFT JOIN 
     core.routes r ON fs.route_id = r.route_id
 WHERE 
-    f.flight_date BETWEEN '2023-01-01' AND '2023-03-31'
+    f.flight_date BETWEEN '2025-03-16' AND '2025-04-15'
 GROUP BY 
     ac.aircraft_id, ac.registration_number, act.manufacturer, act.model
 ORDER BY 
@@ -351,8 +431,8 @@ SELECT
     e.first_name || ' ' || e.last_name AS crew_name,
     c.crew_type,
     COUNT(ca.assignment_id) AS flights_assigned,
-    SUM(EXTRACT(EPOCH FROM (f.actual_arrival - ca.report_time))/3600) AS duty_hours,
-    SUM(EXTRACT(EPOCH FROM (f.actual_arrival - f.actual_departure))/3600) AS flight_hours
+    SUM(EXTRACT(EPOCH FROM (COALESCE(f.actual_arrival, f.scheduled_arrival) - ca.report_time))/3600) AS duty_hours,
+    SUM(EXTRACT(EPOCH FROM (COALESCE(f.actual_arrival, f.scheduled_arrival) - COALESCE(f.actual_departure, f.scheduled_departure)))/3600) AS flight_hours
 FROM 
     employee.crew c
 JOIN 
@@ -360,9 +440,9 @@ JOIN
 JOIN 
     employee.crew_assignments ca ON c.crew_id = ca.crew_id
 JOIN 
-    core.flights f ON ca.flight_id = f.flight_id AND f.actual_departure IS NOT NULL AND f.actual_arrival IS NOT NULL
+    core.flights f ON ca.flight_id = f.flight_id
 WHERE 
-    f.flight_date BETWEEN '2023-04-01' AND '2023-04-30'
+    f.flight_date BETWEEN '2025-03-16' AND '2025-04-15'
 GROUP BY 
     e.employee_id, e.first_name, e.last_name, c.crew_type
 ORDER BY 
@@ -525,8 +605,6 @@ This database schema is provided under the MIT License.
 ## Contributors
 
 - Dennis Kachila (Lead Developer)
-- [Your Name] (Contributor)
-- [Your Name] (Contributor)
 
 ## Contact
 
