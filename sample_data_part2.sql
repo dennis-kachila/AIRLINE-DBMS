@@ -359,3 +359,7 @@ BEGIN
         END LOOP;
     END LOOP;
 END $$;
+
+
+-- End of Part 2
+-- From here, the continuation is in Part 3, located in the file: sample_data_part3.sql
